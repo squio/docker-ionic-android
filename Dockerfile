@@ -28,7 +28,7 @@ RUN cd /tmp \
     && mv tools /opt/android-sdk \
     && (while sleep 3; do echo "y"; done) | $ANDROID_HOME/tools/bin/sdkmanager "build-tools;28.0.3" "platform-tools" "platforms;android-28" \
     && (while sleep 3; do echo "y"; done) | $ANDROID_HOME/tools/bin/sdkmanager --update \
-    && (while sleep 3; do echo "y"; done) | $ANDROID_HOME/tools/bin/sdkmanager --licenses
+    && (while sleep 3; do echo "y"; done) | $ANDROID_HOME/tools/bin/sdkmanager --licenses \
     && rm -rf /tmp/sdk-tools-linux-${ANDROID_SDK_VERSION}.zip \
     
 RUN apt-get autoremove -y \
