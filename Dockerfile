@@ -6,8 +6,6 @@ ARG ANDROID_SDK_VERSION="3859397"
 ARG ANDROID_HOME="/opt/android-sdk"
 
 ENV ANDROID_HOME "${ANDROID_HOME}"
-RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
-RUN apt-get install -y nodejs
 
 RUN apt-get update
 RUN apt-get install -y  \
@@ -18,6 +16,9 @@ RUN apt-get install -y  \
        unzip \
        git \
        gradle
+       
+RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
+RUN apt-get install -y nodejs
 
 RUN npm install -g @ionic/cli@^6.6 cordova@^9 @angular/cli@^9
 
