@@ -16,8 +16,6 @@ RUN apt-get install -y nodejs \
        unzip \
        git \
        gradle
-       
-RUN npm set unsafe-perm true
 
 RUN npm install -g @ionic/cli@^6.6 cordova@^9 @angular/cli@^9
 
