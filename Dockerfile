@@ -11,10 +11,10 @@ RUN apt-get install -y  \
        build-essential \
        openjdk-8-jre \
        openjdk-8-jdk \
-       wget \
+       wget curl \
        unzip \
-       git \
-       gradle
+       git
+       
        
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
 RUN apt-get install -y nodejs
