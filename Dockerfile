@@ -2,7 +2,6 @@ FROM ubuntu:bionic
 
 LABEL MAINTAINER="Weerayut Hongsa <kusumoto.com@gmail.com>"
 
-ARG ANDROID_SDK_VERSION="3859397"
 ARG ANDROID_HOME="/opt/android-sdk"
 
 ENV ANDROID_HOME "${ANDROID_HOME}"
@@ -22,6 +21,17 @@ RUN apt-get install -y nodejs
 
 RUN npm install -g @ionic/cli@^6.6 cordova@^9 @angular/cli@^9
 
+# download and install Gradle
+# https://services.gradle.org/distributions/
+ARG GRADLE_VERSION=6.3
+ARG GRADLE_DIST=bin
+RUN cd /opt && \
+    wget -q https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-${GRADLE_DIST}.zip && \
+    unzip gradle*.zip && \
+    ls -d */ | sed 's/\/*$//g' | xargs -I{} mv {} gradle && \
+    rm gradle*.zip
+ENV GRADLE_HOME /opt/gradle
+
 WORKDIR /tmp
 
 RUN curl -fSLk https://dl.google.com/android/repository/commandlinetools-linux-6200805_latest.zip -o commandlinetools.zip
@@ -29,6 +39,7 @@ RUN unzip commandlinetools.zip
 RUN rm ./commandlinetools.zip
 RUN mkdir $ANDROID_HOME
 RUN mv tools $ANDROID_HOME
+RUN mkdir "$ANDROID_HOME/licenses"
 
 WORKDIR /
 
