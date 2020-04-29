@@ -22,15 +22,19 @@ RUN apt-get install -y nodejs
 
 RUN npm install -g @ionic/cli@^6.6 cordova@^9 @angular/cli@^9
 
-RUN cd /tmp \
-    && curl -fSLk https://dl.google.com/android/repository/sdk-tools-linux-${ANDROID_SDK_VERSION}.zip -o sdk-tools-linux-${ANDROID_SDK_VERSION}.zip \
-    && unzip sdk-tools-linux-${ANDROID_SDK_VERSION}.zip \
-    && mkdir $ANDROID_HOME \
-    && mv tools /opt/android-sdk \
-    && (while sleep 3; do echo "y"; done) | $ANDROID_HOME/tools/bin/sdkmanager "build-tools;28.0.3" "platform-tools" "platforms;android-28" \
-    && (while sleep 3; do echo "y"; done) | $ANDROID_HOME/tools/bin/sdkmanager --update \
-    && (while sleep 3; do echo "y"; done) | $ANDROID_HOME/tools/bin/sdkmanager --licenses \
-    && rm -rf /tmp/sdk-tools-linux-${ANDROID_SDK_VERSION}.zip \
+WORKDIR /tmp
+
+RUN curl -fSLk https://dl.google.com/android/repository/sdk-tools-linux-${ANDROID_SDK_VERSION}.zip -o sdk-tools-linux-${ANDROID_SDK_VERSION}.zip
+RUN unzip sdk-tools-linux-${ANDROID_SDK_VERSION}.zip
+RUN rm ./sdk-tools-linux-${ANDROID_SDK_VERSION}.zip
+RUN mkdir $ANDROID_HOME
+RUN mv tools $ANDROID_HOME
+
+WORKDIR /
+
+RUN yes | $ANDROID_HOME/tools/bin/sdkmanager "build-tools;28.0.3" "platform-tools" "platforms;android-28"
+RUN yes | $ANDROID_HOME/tools/bin/sdkmanager --update
+RUN yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
     
 RUN apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/* \
