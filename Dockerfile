@@ -43,10 +43,10 @@ RUN mkdir "$ANDROID_HOME/licenses"
 
 WORKDIR /
 
-RUN $ANDROID_HOME/tools/bin/sdkmanager --list
-RUN yes | $ANDROID_HOME/tools/bin/sdkmanager "build-tools;28.0.3" "platform-tools" "platforms;android-28"
-RUN yes | $ANDROID_HOME/tools/bin/sdkmanager --update
-RUN yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
+RUN $ANDROID_HOME/tools/bin/sdkmanager --sdk_root=${ANDROID_HOME} --list
+RUN yes | $ANDROID_HOME/tools/bin/sdkmanager --sdk_root=${ANDROID_HOME} "build-tools;28.0.3" "platform-tools" "platforms;android-28"
+RUN yes | $ANDROID_HOME/tools/bin/sdkmanager --sdk_root=${ANDROID_HOME} --update
+RUN yes | $ANDROID_HOME/tools/bin/sdkmanager --sdk_root=${ANDROID_HOME} --licenses
     
 RUN apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/* \
