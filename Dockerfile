@@ -7,8 +7,10 @@ ARG ANDROID_HOME="/opt/android-sdk"
 
 ENV ANDROID_HOME "${ANDROID_HOME}"
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
+RUN apt-get install -y nodejs
+
 RUN apt-get update
-RUN apt-get install -y nodejs \
+RUN apt-get install -y  \
        build-essential \
        openjdk-8-jre \
        openjdk-8-jdk \
