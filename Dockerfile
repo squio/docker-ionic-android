@@ -24,14 +24,15 @@ RUN npm install -g @ionic/cli@^6.6 cordova@^9 @angular/cli@^9
 
 WORKDIR /tmp
 
-RUN curl -fSLk https://dl.google.com/android/repository/sdk-tools-linux-${ANDROID_SDK_VERSION}.zip -o sdk-tools-linux-${ANDROID_SDK_VERSION}.zip
-RUN unzip sdk-tools-linux-${ANDROID_SDK_VERSION}.zip
-RUN rm ./sdk-tools-linux-${ANDROID_SDK_VERSION}.zip
+RUN curl -fSLk https://dl.google.com/android/repository/commandlinetools-linux-6200805_latest.zip -o commandlinetools.zip
+RUN unzip commandlinetools.zip
+RUN rm ./commandlinetools.zip
 RUN mkdir $ANDROID_HOME
 RUN mv tools $ANDROID_HOME
 
 WORKDIR /
 
+RUN $ANDROID_HOME/tools/bin/sdkmanager --list
 RUN yes | $ANDROID_HOME/tools/bin/sdkmanager "build-tools;28.0.3" "platform-tools" "platforms;android-28"
 RUN yes | $ANDROID_HOME/tools/bin/sdkmanager --update
 RUN yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses
