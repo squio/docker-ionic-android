@@ -11,7 +11,7 @@ RUN apt-get install -y  \
        build-essential \
        openjdk-8-jre \
        openjdk-8-jdk \
-       curl \
+       wget \
        unzip \
        git \
        gradle
@@ -34,9 +34,9 @@ ENV GRADLE_HOME /opt/gradle
 
 WORKDIR /tmp
 
-RUN curl -fSLk https://dl.google.com/android/repository/commandlinetools-linux-6200805_latest.zip -o commandlinetools.zip
-RUN unzip commandlinetools.zip
-RUN rm ./commandlinetools.zip
+RUN wget -q https://dl.google.com/android/repository/commandlinetools-linux-6200805_latest.zip
+RUN unzip commandlinetools-*.zip
+RUN rm ./commandlinetools*.zip
 RUN mkdir $ANDROID_HOME
 RUN mv tools $ANDROID_HOME
 RUN mkdir "$ANDROID_HOME/licenses"
