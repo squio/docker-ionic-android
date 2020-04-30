@@ -1,6 +1,6 @@
 FROM ubuntu:bionic
 
-LABEL MAINTAINER="Tmob <gianluca.cagnin@gmail.com>"
+LABEL MAINTAINER="cagianx <gianluca.cagnin@gmail.com>"
 
 ARG ANDROID_SDK_ROOT="/opt/android-sdk"
 
@@ -22,7 +22,6 @@ RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
 RUN apt-get install -y nodejs
 
 RUN npm install -g @ionic/cli@^6.6 cordova@^9 @angular/cli@^9
-RUN npm install -g standard-version@^5.0.0 @tmob-area/sync-version@^2.0.0 @angular/cli@^9
 
 # download and install Gradle
 # https://services.gradle.org/distributions/
