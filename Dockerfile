@@ -1,10 +1,10 @@
 FROM ubuntu:bionic
 
-LABEL MAINTAINER="Weerayut Hongsa <kusumoto.com@gmail.com>"
+LABEL MAINTAINER="Tmob <gianluca.cagnin@gmail.com>"
 
-ARG ANDROID_HOME="/opt/android-sdk"
+ARG ANDROID_SDK_ROOT="/opt/android-sdk"
 
-ENV ANDROID_HOME "${ANDROID_HOME}"
+ENV ANDROID_SDK_ROOT "${ANDROID_SDK_ROOT}"
 
 RUN apt-get update
 RUN apt-get install -y  \
@@ -13,6 +13,8 @@ RUN apt-get install -y  \
        openjdk-8-jdk \
        wget curl \
        unzip \
+       zipalign \
+       zip \
        git
        
        
@@ -20,6 +22,7 @@ RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
 RUN apt-get install -y nodejs
 
 RUN npm install -g @ionic/cli@^6.6 cordova@^9 @angular/cli@^9
+RUN npm install -g standard-version@^5.0.0 @tmob-area/sync-version@^2.0.0 @angular/cli@^9
 
 # download and install Gradle
 # https://services.gradle.org/distributions/
@@ -30,32 +33,28 @@ RUN cd /opt && \
     unzip gradle*.zip && \
     ls -d */ | sed 's/\/*$//g' | xargs -I{} mv {} gradle && \
     rm gradle*.zip
-ENV GRADLE_HOME /opt/gradle
+ENV GRADLE_HOME /opt/gradle/bin
+ENV PATH "$PATH:$GRADLE_HOME"
+
 
 WORKDIR /tmp
 
 RUN wget -q https://dl.google.com/android/repository/commandlinetools-linux-6200805_latest.zip
 RUN unzip commandlinetools-*.zip
 RUN rm ./commandlinetools*.zip
-RUN mkdir $ANDROID_HOME
-RUN mv tools $ANDROID_HOME
-RUN mkdir "$ANDROID_HOME/licenses"
+RUN mkdir $ANDROID_SDK_ROOT
+RUN mv tools $ANDROID_SDK_ROOT
+RUN mkdir "$ANDROID_SDK_ROOT/licenses"
 
 WORKDIR /
 
-RUN $ANDROID_HOME/tools/bin/sdkmanager --sdk_root=${ANDROID_HOME} --list
-RUN yes | $ANDROID_HOME/tools/bin/sdkmanager --sdk_root=${ANDROID_HOME} "build-tools;28.0.3" "platform-tools" "platforms;android-28"
-RUN yes | $ANDROID_HOME/tools/bin/sdkmanager --sdk_root=${ANDROID_HOME} --update
-RUN yes | $ANDROID_HOME/tools/bin/sdkmanager --sdk_root=${ANDROID_HOME} --licenses
+RUN $ANDROID_SDK_ROOT/tools/bin/sdkmanager --sdk_root=${ANDROID_SDK_ROOT} --list
+RUN yes | $ANDROID_SDK_ROOT/tools/bin/sdkmanager --sdk_root=${ANDROID_SDK_ROOT} "build-tools;28.0.3" "platform-tools" "platforms;android-28"
+RUN yes | $ANDROID_SDK_ROOT/tools/bin/sdkmanager --sdk_root=${ANDROID_SDK_ROOT} --update
+RUN yes | $ANDROID_SDK_ROOT/tools/bin/sdkmanager --sdk_root=${ANDROID_SDK_ROOT} --licenses
     
 RUN apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/* \
     && apt-get clean
     
-RUN mkdir /ionicapp
-
-WORKDIR /ionicapp
-
-
-
-    
+WORKDIR /
