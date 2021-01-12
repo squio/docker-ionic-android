@@ -6,6 +6,9 @@ ARG ANDROID_SDK_ROOT="/opt/android-sdk"
 
 ENV ANDROID_SDK_ROOT "${ANDROID_SDK_ROOT}"
 
+ENV TZ=UTC
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 RUN apt-get update
 RUN apt-get install -y  \
        build-essential \
@@ -21,7 +24,7 @@ RUN apt-get install -y  \
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
 RUN apt-get install -y nodejs
 
-RUN npm install -g @ionic/cli@6.12.1 cordova@10.0.0
+RUN npm install -g @ionic/cli@6.12.3 cordova@10.0.0
 
 # download and install Gradle
 # https://services.gradle.org/distributions/
