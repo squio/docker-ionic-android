@@ -77,7 +77,7 @@ RUN apt-get autoremove -y \
 ENV USER="${APPUSER}"
 ENV UID=1000
 ENV GID=1000
-ENV WORKDIR /$USER
+ENV WORKDIR "/$USER"
 
 RUN addgroup --gid "$GID" "$USER" \
     && adduser \
@@ -86,8 +86,9 @@ RUN addgroup --gid "$GID" "$USER" \
     --home "/home/$USER" \
     --ingroup "$USER" \
     --uid "$UID" \
-    "$USER"
+    "$USER" \
+    && usermod -a -G plugdev "$USER"
 
-WORKDIR $WORKDIR
+WORKDIR "/$USER"
 USER $USER
 
