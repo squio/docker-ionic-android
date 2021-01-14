@@ -3,14 +3,15 @@ FROM ubuntu:20.04
 LABEL MAINTAINER="squio <info@squio.nl>"
 
 ARG ANDROID_SDK_ROOT="/opt/android-sdk"
-ARG GRADLE_VERSION="6.3"
-ARG GRADLE_DIST="bin"
+ARG APPUSER="ionicbuild"
+
+# versions
+ARG GRADLE_VERSION="6.8"
 ARG IONIC_VERSION="6.12.3"
 ARG CORDOVA_VERSION="10.0.0"
 ARG ANDROID_SDK_VERSION="6858069_latest"
-ARG ANDROID_BUILD_TOOLS_VERSION="28.0.3"
-ARG ANDROID_PLATFORM="android-28"
-ARG APPUSER="ionicbuild"
+ARG ANDROID_BUILD_TOOLS_VERSION="29.0.3"
+ARG ANDROID_PLATFORM="android-30"
 
 # 1) Install system package dependencies
 # 2) Install Nodejs/NPM/Ionic-Cli
@@ -40,11 +41,12 @@ RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
 RUN apt-get install -y nodejs
 
 RUN npm install -g "@ionic/cli@${IONIC_VERSION}" "cordova@${CORDOVA_VERSION}"
+RUN npm install -g native-run
 
 # download and install Gradle
 # https://services.gradle.org/distributions/
 RUN cd /opt && \
-    wget -q "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-${GRADLE_DIST}.zip" && \
+    wget -q "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" && \
     unzip gradle*.zip && \
     ls -d */ | sed 's/\/*$//g' | xargs -I{} mv {} gradle && \
     rm gradle*.zip
@@ -91,4 +93,3 @@ RUN addgroup --gid "$GID" "$USER" \
 
 WORKDIR "/$USER"
 USER $USER
-
