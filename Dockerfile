@@ -10,8 +10,8 @@ ARG GRADLE_VERSION="6.8"
 ARG IONIC_VERSION="6.12.3"
 ARG CORDOVA_VERSION="10.0.0"
 ARG ANDROID_SDK_VERSION="6858069_latest"
-ARG ANDROID_BUILD_TOOLS_VERSION="29.0.3"
-ARG ANDROID_PLATFORM="android-30"
+ARG ANDROID_BUILD_TOOLS_VERSION="28.0.3"
+ARG ANDROID_PLATFORM="android-28"
 
 # 1) Install system package dependencies
 # 2) Install Nodejs/NPM/Ionic-Cli
@@ -90,6 +90,7 @@ RUN addgroup --gid "$GID" "$USER" \
     --uid "$UID" \
     "$USER" \
     && usermod -a -G plugdev "$USER"
+RUN chown -R "$USER" /opt/android-sdk
 
 WORKDIR "/$USER"
 USER $USER
