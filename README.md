@@ -19,19 +19,19 @@ Android SDK or Ionic Framework you can use the following docker commands in your
 - Update npm packages
 
 ```sh
-docker run --rm -v $(pwd):/ionicapp squio/ionic-android npm install
+docker run --rm -v $(pwd):/ionicapp -w /ionicapp squio/ionic-android npm install
 ```
 
 - Preview Ionic web app in your web browser
 
 ```sh
-docker run --rm -v $(pwd):/ionicapp -p 8100:8100 squio/ionic-android ionic serve
+docker run --rm -v $(pwd):/ionicapp -w /ionicapp -p 8100:8100 squio/ionic-android ionic serve
 ```
 
 - Build android apk output file
 
 ```sh
-docker run --rm -v $(pwd):/ionicapp squio/ionic-android ionic cordova build android
+docker run --rm -v $(pwd):/ionicapp -w /ionicapp squio/ionic-android ionic cordova build android
 ```
 
 The build will be in `./platforms/android/app/build/outputs/apk/debug/app-debug.apk`
@@ -49,7 +49,7 @@ docker run --privileged -v /dev/bus/usb:/dev/bus/usb -P -v $(pwd):/ionicapp squi
 Now you might be able to run your app directly on your device with the command:
 
 ```sh
-docker run --rm -v $(pwd):/ionicapp squio/ionic-android ionic cordova run android
+docker run --rm -v $(pwd):/ionicapp -w /ionicapp squio/ionic-android ionic cordova run android
 ```
 
 If you get a permission denied error make sure your phone has:
@@ -68,10 +68,36 @@ your app from the phone before executing the `run` command again.
 Docker container build args:
 
 ```sh
-GRADLE_VERSION="6.8"
+GRADLE_VERSION="6.5"
 IONIC_VERSION="6.12.3"
+NODE_VERSION="15.x"
 CORDOVA_VERSION="10.0.0"
 ANDROID_SDK_VERSION="6858069_latest"
-ANDROID_BUILD_TOOLS_VERSION="28.0.3"
+ANDROID_BUILD_TOOLS_VERSION="29.0.2"
 ANDROID_PLATFORM="android-28"
 ```
+
+Make sure to keep the gradle version consistent with the version which is
+specified with the installed cordova version.
+
+This can be found in
+`platforms/android/gradle/wrapper/gradle-wrapper.properties`
+
+## Keep gradle environment changes
+
+The `gradlew` build ernvironment is recreated for your project whenever an
+android build is made. This takes time, especially in a low bandwidth environment.
+
+Also the keystore for debug signing is recreated, so you will need to uninstall
+a previous debug app from your Android device before you can install a new build.
+
+To keep the changes whcih the container made you can `commit` them to your image
+as follows:
+
+Run the build command without the `--rm` flag
+
+`docker run -v $(pwd):/ionicapp -w /ionicapp squio/ionic-android ionic cordova build android`
+
+Find the id of the build container with `docker container ls -a`
+
+Then commit the changes with: `docker commit 32cafffb0f5f squio/ionic-android:latest`

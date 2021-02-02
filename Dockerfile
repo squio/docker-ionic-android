@@ -6,11 +6,14 @@ ARG ANDROID_SDK_ROOT="/opt/android-sdk"
 ARG APPUSER="ionicbuild"
 
 # versions
-ARG GRADLE_VERSION="6.8"
+# gradle version must match version in cordova
+#  `platforms/android/gradle/wrapper/gradle-wrapper.properties`: 
+ARG GRADLE_VERSION="6.5"
 ARG IONIC_VERSION="6.12.3"
+ARG NODE_VERSION="15.x"
 ARG CORDOVA_VERSION="10.0.0"
 ARG ANDROID_SDK_VERSION="6858069_latest"
-ARG ANDROID_BUILD_TOOLS_VERSION="28.0.3"
+ARG ANDROID_BUILD_TOOLS_VERSION="29.0.2"
 ARG ANDROID_PLATFORM="android-28"
 
 # 1) Install system package dependencies
@@ -25,8 +28,8 @@ ENV ANDROID_SDK_ROOT "${ANDROID_SDK_ROOT}"
 ENV TZ=UTC
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-RUN apt-get update
-RUN apt-get install -y  \
+RUN apt-get update \
+    && apt-get install -y  \
        build-essential \
        openjdk-8-jre \
        openjdk-8-jdk \
@@ -35,41 +38,43 @@ RUN apt-get install -y  \
        zipalign \
        zip \
        git
-       
-       
-RUN curl -sL https://deb.nodesource.com/setup_14.x | bash -
-RUN apt-get install -y nodejs
 
-RUN npm install -g "@ionic/cli@${IONIC_VERSION}" "cordova@${CORDOVA_VERSION}"
-RUN npm install -g native-run
+# https://github.com/nodesource/distributions
+RUN curl -sL "https://deb.nodesource.com/setup_${NODE_VERSION}" | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g "@ionic/cli@${IONIC_VERSION}" "cordova@${CORDOVA_VERSION}" \
+    && npm install -g native-run
 
 # download and install Gradle
 # https://services.gradle.org/distributions/
+# when entering this step /opt is supposed to be still empty
 RUN cd /opt && \
-    wget -q "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-bin.zip" && \
+    wget -q "https://services.gradle.org/distributions/gradle-${GRADLE_VERSION}-all.zip" && \
     unzip gradle*.zip && \
     ls -d */ | sed 's/\/*$//g' | xargs -I{} mv {} gradle && \
     rm gradle*.zip
 ENV GRADLE_HOME /opt/gradle/bin
+ENV GRADLE_USER_HOME /opt/gradle
 ENV PATH "$PATH:$GRADLE_HOME"
 
 
 WORKDIR /tmp
 
-RUN wget -q "https://dl.google.com/android/repository/commandlinetools-linux-${ANDROID_SDK_VERSION}.zip"
-RUN unzip commandlinetools-*.zip
-RUN rm ./commandlinetools*.zip
-RUN mkdir $ANDROID_SDK_ROOT
-RUN mv cmdline-tools $ANDROID_SDK_ROOT
-RUN mkdir "$ANDROID_SDK_ROOT/licenses"
+RUN wget -q "https://dl.google.com/android/repository/commandlinetools-linux-${ANDROID_SDK_VERSION}.zip" \
+    && unzip commandlinetools-*.zip \
+    && rm ./commandlinetools*.zip \
+    && mkdir -p "$ANDROID_SDK_ROOT/licenses" \
+    && mv "cmdline-tools" "${ANDROID_SDK_ROOT}/"
 
 WORKDIR /
 
-RUN $ANDROID_SDK_ROOT/cmdline-tools/bin/sdkmanager --sdk_root=${ANDROID_SDK_ROOT} --list
+# RUN $ANDROID_SDK_ROOT/cmdline-tools/bin/sdkmanager --sdk_root=${ANDROID_SDK_ROOT} --list
+# omit platform-tools as it will be installed twice!?
+# "build-tools;${ANDROID_BUILD_TOOLS_VERSION}" "platform-tools" "platforms;${ANDROID_PLATFORM}" \
 RUN yes | $ANDROID_SDK_ROOT/cmdline-tools/bin/sdkmanager --sdk_root=${ANDROID_SDK_ROOT} \
-    "build-tools;${ANDROID_BUILD_TOOLS_VERSION}" "platform-tools" "platforms;${ANDROID_PLATFORM}"
-RUN yes | $ANDROID_SDK_ROOT/cmdline-tools/bin/sdkmanager --sdk_root=${ANDROID_SDK_ROOT} --update
-RUN yes | $ANDROID_SDK_ROOT/cmdline-tools/bin/sdkmanager --sdk_root=${ANDROID_SDK_ROOT} --licenses
+    "build-tools;${ANDROID_BUILD_TOOLS_VERSION}" "platforms;${ANDROID_PLATFORM}" \
+    && yes | $ANDROID_SDK_ROOT/cmdline-tools/bin/sdkmanager --sdk_root=${ANDROID_SDK_ROOT} --update \
+    && yes | $ANDROID_SDK_ROOT/cmdline-tools/bin/sdkmanager --sdk_root=${ANDROID_SDK_ROOT} --licenses
     
 RUN apt-get autoremove -y \
     && rm -rf /var/lib/apt/lists/* \
@@ -79,7 +84,6 @@ RUN apt-get autoremove -y \
 ENV USER="${APPUSER}"
 ENV UID=1000
 ENV GID=1000
-ENV WORKDIR "/$USER"
 
 RUN addgroup --gid "$GID" "$USER" \
     && adduser \
@@ -89,8 +93,9 @@ RUN addgroup --gid "$GID" "$USER" \
     --ingroup "$USER" \
     --uid "$UID" \
     "$USER" \
-    && usermod -a -G plugdev "$USER"
-RUN chown -R "$USER" /opt/android-sdk
+    && usermod -a -G plugdev "$USER" \
+    && chown -R "$USER":"$GID" /opt/android-sdk \
+    && chown -R "$USER":"$GID" /opt/gradle
 
-WORKDIR "/$USER"
+WORKDIR "/home/$USER"
 USER $USER
